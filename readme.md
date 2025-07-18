@@ -12,7 +12,7 @@ This is a fork of [BlankSourceCode's obs-zoom-to-mouse](https://github.com/Blank
 * **Tested on**: OBS 31.1.1
 * Any code added by me is licensed under the **AGPLv3**
 * Check the **commit history** to see what was added
-* The `server` branch contains **only my code**, licensed entirely under AGPLv3
+* The server files (not .lua files) contain **only my code**, licensed entirely under AGPLv3
 * This fork adds:
   * A **zoom in/out hotkey** to the zoom lua
   * A **rewritten Python-based remote server**
