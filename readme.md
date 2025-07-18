@@ -21,7 +21,7 @@ This is a fork of [BlankSourceCode's obs-zoom-to-mouse](https://github.com/Blank
     * See the [`server` branch](https://codeberg.org/marvin1099/obs-zoom-to-mouse-remote/src/branch/server) for full details
 
 ## Example
-![Usage Demo](obs-zoom-to-mouse.gif)
+<img src="obs-zoom-to-mouse.gif" alt="Usage Demo" width="60%">
 
 ## Install
 1. Git clone the repo (or just save a copy of `obs-zoom-to-mouse.lua`)  
@@ -78,9 +78,11 @@ This is a fork of [BlankSourceCode's obs-zoom-to-mouse](https://github.com/Blank
 
 1. In OBS, open File -> Settings -> Hotkeys 
    * Add a hotkey for `Toggle zoom to mouse` to zoom in and out
+     * You can also use `Zoom In to Mouse` to only zoom in
+     * In that case you probaly want `Zoom Out from Mouse` to just zoom out as well
    * Add a hotkey for `Toggle follow mouse during zoom` to turn mouse tracking on and off (*Optional*)
 
-### Remote Tracking Support (Dual Machine Support)
+## Remote Tracking Support (Dual Machine Support)
 
 This fork includes **remote mouse tracking** capabilities using a new Python-based server.
 
@@ -107,7 +109,7 @@ This fork includes **remote mouse tracking** capabilities using a new Python-bas
 
 The Python server is inspired by the original Node.js version from [BlankSourceCode's Node.js version](https://github.com/BlankSourceCode/obs-zoom-to-mouse-remote/blob/main/src/server.js) but is written from scratch and uses **custom behavior** written by me.
 
-### More information on how mouse tracking works
+## More information on how mouse tracking works
 When you press the `Toggle zoom` hotkey the script will use the current mouse position as the center of the zoom. The script will then animate the width/height values of a crop/pan filter so it appears to zoom into that location. If you have `Auto follow mouse` turned on, then the x/y values of the filter will also change to keep the mouse in view as it is animating the zoom. Once the animation is complete, the script gives you a "safe zone" to move your cursor in without it moving the "camera". The idea was that you'd want to zoom in somewhere and move your mouse around to highlight code or whatever, without the screen moving so it would be easier to read text in the video.
 
 When you move your mouse to the edge of the zoom area, it will then start tracking the cursor and follow it around at the `Follow Speed`. It will continue to follow the cursor until you hold the mouse still for some amount of time determined by `Lock Sensitivity` at which point it will stop following and give you that safe zone again but now at the new center of the zoom.
