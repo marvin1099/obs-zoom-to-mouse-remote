@@ -1,26 +1,39 @@
-# OBS-Zoom-To-Mouse
+# OBS-Zoom-To-Mouse-Remote
 
-An OBS lua script to zoom a display-capture source to focus on the mouse. 
+An OBS Lua script to zoom a video source to focus on the mouse.
+Now with different **remote tracking support** via a Python server, and zoom in/out hotkeys.
 
-I made this for my own use when recording videos as I wanted a way to zoom into my IDE when highlighting certain sections of code. My particular setup didn't seem to work very well with the existing zooming solutions so I created this.
+## Fork Information
 
-Built with OBS v29.1.3
+This is a fork of [BlankSourceCode's obs-zoom-to-mouse](https://github.com/BlankSourceCode/obs-zoom-to-mouse).
 
-Now works on **Windows**, **Linux**, and **Mac**
-
-Inspired by [tryptech](https://github.com/tryptech)'s [obs-zoom-and-follow](https://github.com/tryptech/obs-zoom-and-follow)
+* **Main repo**: [codeberg.org/marvin1099/obs-zoom-to-mouse-remote](https://codeberg.org/marvin1099/obs-zoom-to-mouse-remote)
+* **Backup repo**: [github.com/marvin1099/obs-zoom-to-mouse-remote](https://github.com/marvin1099/obs-zoom-to-mouse-remote)
+* **Tested on**: OBS 31.1.1
+* Any code added by me is licensed under the **AGPLv3**
+* Check the **commit history** to see what was added
+* The `server` branch contains **only my code**, licensed entirely under AGPLv3
+* This fork adds:
+  * A **zoom in/out hotkey** to the zoom lua
+  * A **rewritten Python-based remote server**
+    * Inspired by [BlankSourceCode's Node.js version](https://github.com/BlankSourceCode/obs-zoom-to-mouse-remote/blob/main/src/server.js)
+    * Supports **custom mouse regions** and other enhancements
+    * See the [`server` branch](https://codeberg.org/marvin1099/obs-zoom-to-mouse-remote/src/branch/server) for full details
 
 ## Example
 ![Usage Demo](obs-zoom-to-mouse.gif)
 
 ## Install
-1. Git clone the repo (or just save a copy of `obs-zoom-to-mouse.lua`)
-1. Launch OBS
-1. In OBS, add a `Display Capture` source (if you don't have one already)
-1. In OBS, open Tools -> Scripts
-1. In the Scripts window, press the `+` button to add a new script
-1. Find and add the `obs-zoom-to-mouse.lua` script
-1. For best results use the following settings on your `Display Capture` source
+1. Git clone the repo (or just save a copy of `obs-zoom-to-mouse.lua`)  
+   - Download From [Releases](https://codeberg.org/marvin1099/obs-zoom-to-mouse-remote/releases) (or [GitHub backup](https://github.com/marvin1099/obs-zoom-to-mouse-remote/releases))
+   - Get `ljsocket.lua`, and `mouse-follow-server.py` for the remote support as well
+   - Place `ljsocket.lua` in the same folder as `obs-zoom-to-mouse.lua`
+2. Launch OBS
+3. In OBS, add a `Display Capture` source (if you don't have one already)
+4. In OBS, open Tools -> Scripts
+5. In the Scripts window, press the `+` button to add a new script
+6. Find and add the `obs-zoom-to-mouse.lua` script
+7. For best results use the following settings on your `Display Capture` source
    * Transform:
       * Positional Alignment - `Top Left`
       * Bounding Box type -  `Scale to inner bounds`
@@ -32,6 +45,7 @@ Inspired by [tryptech](https://github.com/tryptech)'s [obs-zoom-and-follow](http
       * Y - Amount to crop form top side
       * Width - Full width of display minus the value of X + amount to crop from right side
       * Height - Full height of display minus the value of Y + amount to crop from bottom side
+8. Follow the [server branch instructions](https://codeberg.org/marvin1099/obs-zoom-to-mouse-remote/src/branch/server) ([GitHub backup](https://github.com/marvin1099/obs-zoom-to-mouse-remote/src/branch/server)) to use the **remote mouse tracking server**
    
    **Note:** If you don't use this form of setup for your display source (E.g. you have bounding box set to `No bounds` or you have a `Crop` set on the transform), the script will attempt to **automatically change your settings** to zoom compatible ones. 
    This may have undesired effects on your layout (or just not work at all).
@@ -66,13 +80,32 @@ Inspired by [tryptech](https://github.com/tryptech)'s [obs-zoom-and-follow](http
    * Add a hotkey for `Toggle zoom to mouse` to zoom in and out
    * Add a hotkey for `Toggle follow mouse during zoom` to turn mouse tracking on and off (*Optional*)
 
-### Dual Machine Support
-1. The script also has some **basic** dual machine setup support. By using my related project [obs-zoom-to-mouse-remote](https://github.com/BlankSourceCode/obs-zoom-to-mouse-remote) you will be able to track the mouse on your second machine
-1. When you have [ljsocket.lua](https://github.com/BlankSourceCode/obs-zoom-to-mouse-remote) in the same directory as `obs-zoom-to-mouse.lua`, the following settings will also be available:
-   * **Enable remote mouse listener**: True to start a UDP socket server that will listen for mouse position messages from a remote client
-   * **Port**: The port number to use for the socket server
-   * **Poll Delay**: The time between updating the mouse position (in milliseconds)
-   * For more information see [obs-zoom-to-mouse-remote](https://github.com/BlankSourceCode/obs-zoom-to-mouse-remote)
+### Remote Tracking Support (Dual Machine Support)
+
+This fork includes **remote mouse tracking** capabilities using a new Python-based server.
+
+1. First follow [Install](#install) to setup the lua files.
+
+2. In OBS script settings, the following options will be available:
+   * **Enable remote mouse listener**
+   * **Port** to listen on
+   * **Poll Delay** for mouse position updates
+   * Recomended settings for full function of the python server
+     * Auto Follow Mouse [x]  
+     * Follow speed = 1.00  
+     * Follow border = 50  
+     * Lock Sensitivity = 1  
+     * Allow any zoom source [x]  
+     * Enable remote mouse listener [x]  ; Needed for capture card / ndi souces  
+     * Poll Delay = 10
+   * The rest you can set how you want it
+
+4. Then follow the setup instructions in the [`server` branch](https://codeberg.org/marvin1099/obs-zoom-to-mouse-remote/src/branch/server) to:
+   * Launch the Python server
+   * Connect your remote system
+   * Define custom regions and tracking behavior
+
+The Python server is inspired by the original Node.js version from [BlankSourceCode's Node.js version](https://github.com/BlankSourceCode/obs-zoom-to-mouse-remote/blob/main/src/server.js) but is written from scratch and uses **custom behavior** written by me.
 
 ### More information on how mouse tracking works
 When you press the `Toggle zoom` hotkey the script will use the current mouse position as the center of the zoom. The script will then animate the width/height values of a crop/pan filter so it appears to zoom into that location. If you have `Auto follow mouse` turned on, then the x/y values of the filter will also change to keep the mouse in view as it is animating the zoom. Once the animation is complete, the script gives you a "safe zone" to move your cursor in without it moving the "camera". The idea was that you'd want to zoom in somewhere and move your mouse around to highlight code or whatever, without the screen moving so it would be easier to read text in the video.
@@ -116,8 +149,9 @@ Note: If you are also using a `transform crop` on the non-display capture source
 
 ## Known Limitations
 * Only works on `Display Capture` sources (automatically)
-   * In theory it should be able to work on window captures too, if there was a way to get the mouse position relative to that specific window
-   * You can now enable the [`Show all sources`](#More-information-on-'Show-All-Sources') option to select a non-display capture source, but you MUST set manual source position values
+   * In theory it should be able to work on window captures too, if there was a way to get the mouse position relative to that specific window.
+   * You can now enable the [`Show all sources`](#More-information-on-'Show-All-Sources') option to select a non-display capture source, but you MUST set manual source position values.
+   * Fork info: I dind not need to set manual source position values even though im using a other pc, but i think it depents on the obs video size settings, set it if you have issues.
 
 * Using Linux:
    * You may need to install the [loopback package](https://obsproject.com/forum/threads/obs-no-display-screen-capture-option.156314/) to enable `XSHM` display capture sources. This source acts most like the ones used by Windows and Mac so the script can auto calculate sizes for you.
@@ -129,11 +163,6 @@ Note: If you are also using a `transform crop` on the non-display capture source
 ## Development Setup
 * Clone this repo
 * Edit `obs-zoom-to-mouse.lua`
+* For socket changes edit `ljsocket.lua`
 * Click `Reload Scripts` in the OBS Scripts window
-
-##
-
-Want to support me staying awake long enough to add some more features?
-
-<a href="https://www.buymeacoffee.com/blanksourcecode" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
