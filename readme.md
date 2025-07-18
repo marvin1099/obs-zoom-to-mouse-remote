@@ -18,7 +18,7 @@ This is a fork of [BlankSourceCode's obs-zoom-to-mouse](https://github.com/Blank
   * A **rewritten Python-based remote server**
     * Inspired by [BlankSourceCode's Node.js version](https://github.com/BlankSourceCode/obs-zoom-to-mouse-remote/blob/main/src/server.js)
     * Supports **custom mouse regions** and other enhancements
-    * See the [`server` branch](https://codeberg.org/marvin1099/obs-zoom-to-mouse-remote/src/branch/server) for full details
+    * See the [Mouse Follow Server section](#mouse-follow-server) for full details
 
 ## Example
 <img src="obs-zoom-to-mouse.gif" alt="Usage Demo" width="60%">
@@ -45,7 +45,7 @@ This is a fork of [BlankSourceCode's obs-zoom-to-mouse](https://github.com/Blank
       * Y - Amount to crop form top side
       * Width - Full width of display minus the value of X + amount to crop from right side
       * Height - Full height of display minus the value of Y + amount to crop from bottom side
-8. Follow the [server branch instructions](https://codeberg.org/marvin1099/obs-zoom-to-mouse-remote/src/branch/server) ([GitHub backup](https://github.com/marvin1099/obs-zoom-to-mouse-remote/src/branch/server)) to use the **remote mouse tracking server**
+8. Follow the [Mouse Follow Server](#mouse-follow-server) to use the **remote mouse tracking server**
    
    **Note:** If you don't use this form of setup for your display source (E.g. you have bounding box set to `No bounds` or you have a `Crop` set on the transform), the script will attempt to **automatically change your settings** to zoom compatible ones. 
    This may have undesired effects on your layout (or just not work at all).
@@ -102,7 +102,7 @@ This fork includes **remote mouse tracking** capabilities using a new Python-bas
      * Poll Delay = 10
    * The rest you can set how you want it
 
-4. Then follow the setup instructions in the [`server` branch](https://codeberg.org/marvin1099/obs-zoom-to-mouse-remote/src/branch/server) to:
+4. Then follow the setup instructions in the [Mouse Follow Server section](#mouse-follow-server) to:
    * Launch the Python server
    * Connect your remote system
    * Define custom regions and tracking behavior
@@ -167,4 +167,164 @@ Note: If you are also using a `transform crop` on the non-display capture source
 * Edit `obs-zoom-to-mouse.lua`
 * For socket changes edit `ljsocket.lua`
 * Click `Reload Scripts` in the OBS Scripts window
+
+
+
+--- 
+
+
+
+# Mouse Follow Server
+
+This is the companion **Python-based remote tracking server** for the [`Main section`](#obs-zoom-to-mouse-remote). It sends mouse position updates to OBS over **UDP**, allowing **remote mouse tracking and zooming**, even from other machines or monitor setups.
+
+> Fully standalone and licensed under the **AGPLv3**  
+> Requires **Python 3.7+**  
+> Works cross-platform: Linux, Windows, macOS  
+
+## Features
+
+* Sends live mouse position to OBS zoom script over UDP
+* Tracks a specific monitor (even multi-monitor setups)
+* Divide screen into custom **rows and columns** (optional)
+* Optional **OBS WebSocket** integration for additional automation
+* Saves and reuses settings via config files
+* Fast updates with adjustable smoothing and motion parameters
+
+## Download 
+
+Git clone the repo with branch server (or just save a copy of `start-mouse-follow-server.py`)  
+- Download From [Releases](https://codeberg.org/marvin1099/obs-zoom-to-mouse-remote/releases) (or [GitHub backup](https://github.com/marvin1099/obs-zoom-to-mouse-remote/releases))
+  - Get `start-mouse-follow-server.sh` (On unix like systems) or `start-mouse-follow-server.bat` (on Windows) as well.
+  - The launcher files will activate a venv for you and install any needed python packages (recomended).
+
+## Installation
+
+Open the terminal or cmd (Windows)
+
+### On Linux/macOS
+
+To use the included Bash launcher:
+
+```bash
+./start-mouse-follow-server.sh
+```
+Use the full path if your working directory if not at the script root (or cd to the script root)
+
+### On Windows
+
+Or for use of the provided batch script:
+
+```bat
+start-mouse-follow-server.bat
+```
+Use the full path if your working directory if not at the script root (or cd to the script root)
+
+## Configuration
+
+You can pass options via command line or save them for reuse in a JSON file (default: `~/.config/obs-zoom-to-mouse/last_config.json`).
+
+### Example usage:
+
+```bash
+python mouse-follow-server.py \
+  --ip 192.168.1.42 \
+  --port 12345 \
+  --delay 10 \
+  --setmonitor 1 \
+  --rows 3 \
+  --columns 4 \
+  --zoomin true \
+  --source-name "Game Source" \
+  --source-size 1920 1080
+```
+
+---
+
+## Usage
+
+```
+usage: mouse-follow-server.py [-h] [-c CONFIG_FILE] [-i IP] [-p PORT] [-d DELAY] [-R ROWS] [-C COLUMNS] [-l] [-s SETMONITOR] [-z [ZOOMIN]] [-t [ZOOMTOGGLE]] [-P PADDING] [-f FACTOR] [-m MINSTEP] [-M MAXSTEP] [-Z ZOOM] [-w WSPORT] [-W WSPASSWORD] [-k KEYFILE] [-B WIDTH HEIGHT] [-S SOURCE_NAME]
+
+Send mouse position to OBS Zoom plugin via UDP; Most argument values will be saved
+
+options:
+-h, --help            show this help message and exit
+-c, --config-file CONFIG_FILE
+                      Set the config file location (default; not stored: ~/.config/obs_zoommouse_socket/last_config.json)
+-i, --ip IP           OBS hostname or IP (default: localhost)
+-p, --port PORT       UDP port (default: 12345)
+-d, --delay DELAY     Delay in ms (default: 10)
+-R, --rows ROWS       Divide screen into N rows
+-C, --columns COLUMNS
+                      Divide screen into N columns
+-l, --listmonitors    List available monitors
+-s, --setmonitor SETMONITOR
+                      Select monitor index to use
+-z, --zoomin [ZOOMIN]
+                      Zoom in at start (default: false; set to true to zoom in at start)
+-t, --zoomtoggle [ZOOMTOGGLE]
+                      Use older zoomtoggle behavior (default: false; set to true to enable)
+-P, --padding PADDING
+                      Sticky border padding as a percentage (default: 0.45)
+-f, --factor FACTOR   Smoothing factor (default: 0.01)
+-m, --minstep MINSTEP
+                      Minimum step size (default: 2.0)
+-M, --maxstep MAXSTEP
+                      Maximum step size (default: 75.0)
+-Z, --zoom ZOOM       What is your zoom setting (used for border distance; default 2; -1 to disable)
+-w, --wsport WSPORT   OBS WebSocket port (default: 4455)
+-W, --wspassword WSPASSWORD
+                      OBS WebSocket password (if set)
+-k, --keyfile KEYFILE
+                      Path to a key input file (for automation)
+-B, --source-size WIDTH HEIGHT
+                      Set obs source base size in pixels (default: Monitor Size; noted by xy; -1, -1)
+-S, --source-name SOURCE_NAME
+                      Set obs source name; needed for zoom check.
+```
+
+---
+
+## Monitor Info
+
+To list monitors and their indexes:
+
+```bash
+python mouse-follow-server.py --listmonitors
+```
+
+Example output:
+
+```
+Monitor 0: 1920x1080
+Monitor 1: 2560x1440
+```
+
+Then you can use `--setmonitor 1` to track monitor 1.
+
+---
+
+## Config Files
+
+All options (except `--config-file`) are saved after first run.
+You can reuse saved config automatically, or specify a different file:
+
+```bash
+python mouse-follow-server.py --config-file mypreset.json
+```
+
+---
+
+## Licensing
+
+All code in this `server` branch is released under the **GNU AGPLv3** license.
+
+---
+
+## Related Project
+
+Be sure to check out the OBS script that uses this server:
+
+[`Main section`](#obs-zoom-to-mouse-remote)
 
