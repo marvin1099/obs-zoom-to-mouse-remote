@@ -37,6 +37,8 @@ local zoom_target = nil
 local locked_center = nil
 local locked_last_pos = nil
 local hotkey_zoom_id = nil
+local hotkey_zoom_in_id = nil
+local hotkey_zoom_out_id = nil
 local hotkey_follow_id = nil
 local is_timer_running = false
 
@@ -862,6 +864,46 @@ function on_toggle_zoom(pressed)
     end
 end
 
+function on_zoom_in(pressed)
+    if pressed and (zoom_state == ZoomState.None or zoom_state == ZoomState.ZoomedIn) then
+        log("Zooming in (manual)")
+        zoom_state = ZoomState.ZoomingIn
+        zoom_info.zoom_to = zoom_value
+        zoom_time = 0
+        locked_center = nil
+        locked_last_pos = nil
+        zoom_target = get_target_position(zoom_info)
+
+        if not is_timer_running then
+            is_timer_running = true
+            local timer_interval = math.floor(obs.obs_get_frame_interval_ns() / 1000000)
+            obs.timer_add(on_timer, timer_interval)
+        end
+    end
+end
+
+function on_zoom_out(pressed)
+    if pressed and zoom_state == ZoomState.ZoomedIn then
+        log("Zooming out (manual)")
+        zoom_state = ZoomState.ZoomingOut
+        zoom_time = 0
+        locked_center = nil
+        locked_last_pos = nil
+        zoom_target = { crop = crop_filter_info_orig, c = sceneitem_crop_orig }
+
+        if is_following_mouse then
+            is_following_mouse = false
+            log("Tracking mouse is off (due to zoom out)")
+        end
+
+        if not is_timer_running then
+            is_timer_running = true
+            local timer_interval = math.floor(obs.obs_get_frame_interval_ns() / 1000000)
+            obs.timer_add(on_timer, timer_interval)
+        end
+    end
+end
+
 function on_timer()
     if crop_filter_info ~= nil and zoom_target ~= nil then
         -- Update our zoom time that we use for the animation
@@ -1334,9 +1376,15 @@ function script_load(settings)
     is_obs_loaded = current_scene ~= nil -- Current scene is nil on first OBS load
     obs.obs_source_release(current_scene)
 
-    -- Add our hotkey
+    -- Add our hotkeys
     hotkey_zoom_id = obs.obs_hotkey_register_frontend("toggle_zoom_hotkey", "Toggle zoom to mouse",
         on_toggle_zoom)
+
+    hotkey_zoom_in_id = obs.obs_hotkey_register_frontend("zoom_in_hotkey", "Zoom In to Mouse",
+        on_zoom_in)
+
+    hotkey_zoom_out_id = obs.obs_hotkey_register_frontend("zoom_out_hotkey", "Zoom Out from Mouse",
+        on_zoom_out)
 
     hotkey_follow_id = obs.obs_hotkey_register_frontend("toggle_follow_hotkey", "Toggle follow mouse during zoom",
         on_toggle_follow)
@@ -1344,6 +1392,14 @@ function script_load(settings)
     -- Attempt to reload existing hotkey bindings if we can find any
     local hotkey_save_array = obs.obs_data_get_array(settings, "obs_zoom_to_mouse.hotkey.zoom")
     obs.obs_hotkey_load(hotkey_zoom_id, hotkey_save_array)
+    obs.obs_data_array_release(hotkey_save_array)
+
+    hotkey_save_array = obs.obs_data_get_array(settings, "obs_zoom_to_mouse.hotkey.zoomin")
+    obs.obs_hotkey_load(hotkey_zoom_in_id, hotkey_save_array)
+    obs.obs_data_array_release(hotkey_save_array)
+
+    hotkey_save_array = obs.obs_data_get_array(settings, "obs_zoom_to_mouse.hotkey.zoomout")
+    obs.obs_hotkey_load(hotkey_zoom_out_id, hotkey_save_array)
     obs.obs_data_array_release(hotkey_save_array)
 
     hotkey_save_array = obs.obs_data_get_array(settings, "obs_zoom_to_mouse.hotkey.follow")
@@ -1464,6 +1520,18 @@ function script_save(settings)
     if hotkey_zoom_id ~= nil then
         local hotkey_save_array = obs.obs_hotkey_save(hotkey_zoom_id)
         obs.obs_data_set_array(settings, "obs_zoom_to_mouse.hotkey.zoom", hotkey_save_array)
+        obs.obs_data_array_release(hotkey_save_array)
+    end
+
+    if hotkey_zoom_in_id ~= nil then
+        local hotkey_save_array = obs.obs_hotkey_save(hotkey_zoom_in_id)
+        obs.obs_data_set_array(settings, "obs_zoom_to_mouse.hotkey.zoomin", hotkey_save_array)
+        obs.obs_data_array_release(hotkey_save_array)
+    end
+
+    if hotkey_zoom_out_id ~= nil then
+        local hotkey_save_array = obs.obs_hotkey_save(hotkey_zoom_out_id)
+        obs.obs_data_set_array(settings, "obs_zoom_to_mouse.hotkey.zoomout", hotkey_save_array)
         obs.obs_data_array_release(hotkey_save_array)
     end
 
