@@ -20,9 +20,9 @@ This is a fork of [BlankSourceCode's obs-zoom-to-mouse](https://github.com/Blank
 * **Main repo**: [codeberg.org/marvin1099/obs-zoom-to-mouse-remote](https://codeberg.org/marvin1099/obs-zoom-to-mouse-remote)
 * **Backup repo**: [github.com/marvin1099/obs-zoom-to-mouse-remote](https://github.com/marvin1099/obs-zoom-to-mouse-remote)
 * **Tested on**: OBS 31.1.1
-* Any code added by me is licensed under the **AGPLv3**
-* Check the **commit history** to see what was added
-* The server files (not .lua files) contain **only my code**, licensed entirely under AGPLv3
+* The python server is licensed under the **AGPLv3**  
+  The rest is only licensed under AGPLv3 if there are no conflicts (not shure, not a lawyer, likely no conflicts)
+* Check the **commit history** to see what was added (what i added can all likely be licensed under AGPLv3)
 * This fork adds:
   * A **zoom in/out hotkey** to the zoom lua
   * A **rewritten Python-based remote server**
@@ -188,7 +188,7 @@ Note: If you are also using a `transform crop` on the non-display capture source
 
 This is the companion **Python-based remote tracking server** for the [`Main section`](#obs-zoom-to-mouse-remote). It sends mouse position updates to OBS over **UDP**, allowing **remote mouse tracking and zooming**, even from other machines or monitor setups.
 
-> Fully standalone and licensed under the **AGPLv3**  
+> Fully standalone and server licensed under the **AGPLv3**
 > Requires **Python 3.7+**  
 > Works cross-platform: Linux, Windows, macOS  
 
@@ -373,13 +373,15 @@ For example wroots was a way to get the mouse position with a command so that co
 
 ## Licensing
 
-All code in this `server` branch is released under the **GNU AGPLv3** license.
+The python server is licensed under the **AGPLv3**  
+The rest is only licensed under AGPLv3 if there are no conflicts (not shure, not a lawyer, likely no conflicts)  
+Check the **commit history** to see what was added (what i added can all likely be licensed under AGPLv3)
 
 ---
 
-## Related Project
+## Main Part
 
-Be sure to check out the OBS script that uses this server:
+Be sure to check out the info on the OBS script that uses this server:
 
 [`Main section`](#obs-zoom-to-mouse-remote)
 
