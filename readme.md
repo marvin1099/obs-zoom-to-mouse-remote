@@ -8,7 +8,7 @@ Go to Important Sections:
    - [Usage](#usage)
    - [Remote Tracking Support (Dual Machine Support)](remote-tracking-support-dual-machine-support)
    - [Known Limitations](#known-limitations)
-- [Mouse Follow Server](#mouse-follow-Server)
+- [Mouse Follow Server](#mouse-follow-server)
    - [Usage](#usage-1)
    - [Server Limitations](#server-limitations)
 
@@ -196,7 +196,7 @@ Go to Important Sections:
    - [Usage](#usage)
    - [Remote Tracking Support (Dual Machine Support)](remote-tracking-support-dual-machine-support)
    - [Known Limitations](#known-limitations)
-- [Mouse Follow Server](#mouse-follow-Server)
+- [Mouse Follow Server](#mouse-follow-server)
    - [Usage](#usage-1)
    - [Server Limitations](#server-limitations)
 
