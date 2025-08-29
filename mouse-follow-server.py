@@ -75,7 +75,7 @@ def str2bool(v):
 def parse_arguments():
     # Minimal parser to get the config file path early
     mini_parser = argparse.ArgumentParser(add_help=False)
-    mini_parser.add_argument("-C", "--config-file", type=str, default=None)
+    mini_parser.add_argument("-c", "--config-file", type=str, default=None)
     known_args, _ = mini_parser.parse_known_args()
 
     # Determine config file path
