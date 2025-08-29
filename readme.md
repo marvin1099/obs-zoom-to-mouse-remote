@@ -9,6 +9,7 @@ Go to Important Sections:
    - [Remote Tracking Support (Dual Machine Support)](remote-tracking-support-dual-machine-support)
    - [Known Limitations](#known-limitations)
 - [Mouse Follow Server](#mouse-follow-server)
+   - [Download](#download)
    - [Usage](#usage-1)
    - [Server Limitations](#server-limitations)
 
@@ -197,6 +198,7 @@ Go to Important Sections:
    - [Remote Tracking Support (Dual Machine Support)](remote-tracking-support-dual-machine-support)
    - [Known Limitations](#known-limitations)
 - [Mouse Follow Server](#mouse-follow-server)
+   - [Download](#download)
    - [Usage](#usage-1)
    - [Server Limitations](#server-limitations)
 
@@ -258,8 +260,8 @@ python mouse-follow-server.py \
   --columns 4 \
   --zoomin true \
   --source-name "Game Source" \
-  --source-size 1920 1080
-  -T 'kdotool getmouselocation | grep -oE \'[0-9]+\' | head -2 | awk "{print int(\\$0*1.5)}"'
+  --source-size 1920 1080 \
+  -T 'kdotool getmouselocation | grep -oE \'[0-9]+\' | head -2 | awk \'{print int($0*1.5)}\''
 ```
 
 ---
