@@ -7,6 +7,7 @@ import argparse
 import pyautogui
 import math
 import platform
+import subprocess
 import sys
 import select
 import json
@@ -104,6 +105,7 @@ def parse_arguments():
     parser.add_argument("-P", "--padding", type=float, default=last_config.get("padding", 0.45),
         help="Sticky border padding as a percentage (default: 0.45)")
     parser.add_argument("-f", "--factor", type=float, default=last_config.get("factor", 0.01), help="Smoothing factor (default: 0.01)")
+    parser.add_argument("-T", "--mouse-track-command", default=last_config.get("mouse_track_command", ""), help="Set a Mouse tracking coomand (needed for wayland)")
     parser.add_argument("-m", "--minstep", type=float, default=last_config.get("minstep", 2.0), help="Minimum step size (default: 2.0)")
     parser.add_argument("-M", "--maxstep", type=float, default=last_config.get("maxstep", 75.0), help="Maximum step size (default: 75.0)")
     parser.add_argument("-Z", "--zoom", type=float, default=last_config.get("zoom", 2),
@@ -243,8 +245,30 @@ def get_monitor_area(index):
     mon = monitors[index]
     return mon.x, mon.y, mon.width, mon.height
 
-def get_mouse_relative_to_monitor(monitor_x, monitor_y, monitor_w, monitor_h):
-    mx, my = pyautogui.position()
+def get_mouse_relative_to_monitor(monitor_x, monitor_y, monitor_w, monitor_h, mouse_track_command=None):
+    numbers = []
+    if mouse_track_command:
+        result = subprocess.run(mouse_track_command, shell=True, capture_output=True, text=True)
+        if result.returncode == 0:
+            raw_awnser = str(result.stdout) + ";"
+            current = ""
+
+            for ch in raw_awnser:
+                if ch.isdigit():
+                    current += ch
+                elif current:
+                    numbers.append(int(current))
+                    current = ""
+                    if len(numbers) > 1: # if we got cordinates there is no point in getting more
+                        break
+
+    if len(numbers) < 2:
+        mx, my = pyautogui.position()
+        if len(numbers) == 1:
+            mx = numbers[0]
+    else:
+        mx, my = numbers[:2]
+
     rx = clamp(mx - monitor_x, 0, monitor_w)
     ry = clamp(my - monitor_y, 0, monitor_h)
     return rx, ry
@@ -378,6 +402,7 @@ def main():
     zoomin = args.zoomin
     zoomtoggle = args.zoomtoggle
     source_name = args.source_name
+    mouse_track_command = args.mouse_track_command
 
     if args.keyfile:
         keyfile_path = (
@@ -413,7 +438,7 @@ def main():
 
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    current_x, current_y = get_mouse_relative_to_monitor(monitor_x, monitor_y, monitor_w, monitor_h)
+    current_x, current_y = get_mouse_relative_to_monitor(monitor_x, monitor_y, monitor_w, monitor_h, mouse_track_command)
 
     following = True
     obs_client = None
@@ -483,7 +508,7 @@ def main():
 
             # Get raw mouse relative to selected monitor if follow is active
             if following or raw_x == None or raw_y == None:
-                raw_x, raw_y = get_mouse_relative_to_monitor(monitor_x, monitor_y, monitor_w, monitor_h)
+                raw_x, raw_y = get_mouse_relative_to_monitor(monitor_x, monitor_y, monitor_w, monitor_h, mouse_track_command)
 
             if cols > 0 and rows > 0:
                 current_cell, (target_x, target_y) = get_snap_target_with_padding(
