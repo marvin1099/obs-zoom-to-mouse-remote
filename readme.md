@@ -3,6 +3,15 @@
 An OBS Lua script to zoom a video source to focus on the mouse.
 Now with different **remote tracking support** via a Python server, and zoom in/out hotkeys.
 
+Go to Important Sections:
+- [Top of Readme](#obs-zoom-to-mouse-remote)
+   - [Usage](#usage)
+   - [Remote Tracking Support (Dual Machine Support)](remote-tracking-support-dual-machine-support)
+   - [Known Limitations](#known-limitations)
+- [Mouse Follow Server](#mouse-follow-Server)
+   - [Usage](#usage-1)
+   - [Server Limitations](#server-limitations)
+
 ## Fork Information
 
 This is a fork of [BlankSourceCode's obs-zoom-to-mouse](https://github.com/BlankSourceCode/obs-zoom-to-mouse).
@@ -182,6 +191,15 @@ This is the companion **Python-based remote tracking server** for the [`Main sec
 > Requires **Python 3.7+**  
 > Works cross-platform: Linux, Windows, macOS  
 
+Go to Important Sections:
+- [Top of Readme](#obs-zoom-to-mouse-remote)
+   - [Usage](#usage)
+   - [Remote Tracking Support (Dual Machine Support)](remote-tracking-support-dual-machine-support)
+   - [Known Limitations](#known-limitations)
+- [Mouse Follow Server](#mouse-follow-Server)
+   - [Usage](#usage-1)
+   - [Server Limitations](#server-limitations)
+
 ## Features
 
 * Sends live mouse position to OBS zoom script over UDP
@@ -201,6 +219,10 @@ Git clone the repo with branch server (or just save a copy of `start-mouse-follo
 ## Installation
 
 Open the terminal or cmd (Windows)
+
+WARNING: Mouse tracking only works on x11.  
+Use the argument --mouse-track-command to set a command that can pull your mouse coordinates.
+For more info on this see [Server Limitations](#server-limitations).
 
 ### On Linux/macOS
 
@@ -237,6 +259,7 @@ python mouse-follow-server.py \
   --zoomin true \
   --source-name "Game Source" \
   --source-size 1920 1080
+  -T 'kdotool getmouselocation | grep -oE \'[0-9]+\' | head -2 | awk "{print int(\\$0*1.5)}"'
 ```
 
 ---
@@ -244,44 +267,48 @@ python mouse-follow-server.py \
 ## Usage
 
 ```
-usage: mouse-follow-server.py [-h] [-c CONFIG_FILE] [-i IP] [-p PORT] [-d DELAY] [-R ROWS] [-C COLUMNS] [-l] [-s SETMONITOR] [-z [ZOOMIN]] [-t [ZOOMTOGGLE]] [-P PADDING] [-f FACTOR] [-m MINSTEP] [-M MAXSTEP] [-Z ZOOM] [-w WSPORT] [-W WSPASSWORD] [-k KEYFILE] [-B WIDTH HEIGHT] [-S SOURCE_NAME]
+usage: mouse-follow-server.py [-h] [-c CONFIG_FILE] [-i IP] [-p PORT] [-d DELAY] [-R ROWS] [-C COLUMNS] [-l] [-s SETMONITOR] [-z [ZOOMIN]]
+[-t [ZOOMTOGGLE]] [-P PADDING] [-f FACTOR] [-T MOUSE_TRACK_COMMAND] [-m MINSTEP] [-M MAXSTEP] [-Z ZOOM]
+[-w WSPORT] [-W WSPASSWORD] [-k KEYFILE] [-B WIDTH HEIGHT] [-S SOURCE_NAME]
 
 Send mouse position to OBS Zoom plugin via UDP; Most argument values will be saved
 
 options:
 -h, --help            show this help message and exit
 -c, --config-file CONFIG_FILE
-                      Set the config file location (default; not stored: ~/.config/obs_zoommouse_socket/last_config.json)
+Set the config file location (default; not stored: /home/marvin/.config/obs_zoommouse_socket/last_config.json)
 -i, --ip IP           OBS hostname or IP (default: localhost)
 -p, --port PORT       UDP port (default: 12345)
 -d, --delay DELAY     Delay in ms (default: 10)
 -R, --rows ROWS       Divide screen into N rows
 -C, --columns COLUMNS
-                      Divide screen into N columns
+Divide screen into N columns
 -l, --listmonitors    List available monitors
 -s, --setmonitor SETMONITOR
-                      Select monitor index to use
+Select monitor index to use
 -z, --zoomin [ZOOMIN]
-                      Zoom in at start (default: false; set to true to zoom in at start)
+Zoom in at start (default: false; set to true to zoom in at start)
 -t, --zoomtoggle [ZOOMTOGGLE]
-                      Use older zoomtoggle behavior (default: false; set to true to enable)
+Use older zoomtoggle behavior (default: false; set to true to enable)
 -P, --padding PADDING
-                      Sticky border padding as a percentage (default: 0.45)
+Sticky border padding as a percentage (default: 0.45)
 -f, --factor FACTOR   Smoothing factor (default: 0.01)
+-T, --mouse-track-command MOUSE_TRACK_COMMAND
+Set a Mouse tracking coomand (needed for wayland)
 -m, --minstep MINSTEP
-                      Minimum step size (default: 2.0)
+Minimum step size (default: 2.0)
 -M, --maxstep MAXSTEP
-                      Maximum step size (default: 75.0)
+Maximum step size (default: 75.0)
 -Z, --zoom ZOOM       What is your zoom setting (used for border distance; default 2; -1 to disable)
 -w, --wsport WSPORT   OBS WebSocket port (default: 4455)
 -W, --wspassword WSPASSWORD
-                      OBS WebSocket password (if set)
+OBS WebSocket password (if set)
 -k, --keyfile KEYFILE
-                      Path to a key input file (for automation)
+Path to a key input file (for automation)
 -B, --source-size WIDTH HEIGHT
-                      Set obs source base size in pixels (default: Monitor Size; noted by xy; -1, -1)
+Set obs source base size in pixels (default: Monitor Size; noted by xy; -1, -1)
 -S, --source-name SOURCE_NAME
-                      Set obs source name; needed for zoom check.
+Set obs source name; needed for zoom check.
 ```
 
 ---
@@ -313,6 +340,32 @@ You can reuse saved config automatically, or specify a different file:
 ```bash
 python mouse-follow-server.py --config-file mypreset.json
 ```
+
+---
+## Server Limitations
+   
+On Wayland there is no global way to grab the mouselocation right now.  
+So you need to see how to get the mouselocation via command.  
+For example on kde there is the tool `kdotool` that can get the mouselocation.  
+But keep in mind only newer versions of `kdotool` work for this.  
+So you may need to build from source to make it work.  
+Run the following to check if you have mouselocation support in your current version of `kdotool`:
+```bash
+kdotool | grep getmouselocation 
+```
+If it returns this you can use `kdotool` as --mouse-track-command:
+```bash
+   getmouselocation [--shell]
+```
+For me it is set it up like this:
+```bash
+./mouse-follow-server.sh -T 'kdotool getmouselocation | grep -oE \'[0-9]+\' | head -2 | awk \'{print int($0*1.5)}\''
+```
+Since I have 150% scale set the mouse actually needs to be multiplied by 1.5.  
+But There is no need to strip your command the mouse-follow-server will take the first 2 numbers and auto strip the rest.  
+Becalse i needed to multiply the output I stripped the command to make it work.  
+On other compositors you have to check yourself on how to get your mouse coordinates.  
+For example wroots was a way to get the mouse position with a command so that compositor should work.
 
 ---
 
