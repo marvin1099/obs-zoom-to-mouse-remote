@@ -107,8 +107,8 @@ This fork includes **remote mouse tracking** capabilities using a new Python-bas
      * Follow speed = 1.00  
      * Follow border = 50  
      * Lock Sensitivity = 1  
-     * Allow any zoom source [x]  
-     * Enable remote mouse listener [x]  ; Needed for capture card / ndi souces  
+     * Allow any zoom source [x]  ; Needed for capture card / ndi souces  
+     * Enable remote mouse listener [x]  
      * Poll Delay = 10
    * The rest you can set how you want it
 
