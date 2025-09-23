@@ -6,7 +6,7 @@ Now with different **remote tracking support** via a Python server, and zoom in/
 Go to Important Sections:
 - [Top of Readme](#obs-zoom-to-mouse-remote)
    - [Usage](#usage)
-   - [Remote Tracking Support (Dual Machine Support)](remote-tracking-support-dual-machine-support)
+   - [Remote Tracking Support (Dual Machine Support)](#remote-tracking-support-dual-machine-support)
    - [Known Limitations](#known-limitations)
 - [Mouse Follow Server](#mouse-follow-server)
    - [Download](#download)
@@ -195,7 +195,7 @@ This is the companion **Python-based remote tracking server** for the [`Main sec
 Go to Important Sections:
 - [Top of Readme](#obs-zoom-to-mouse-remote)
    - [Usage](#usage)
-   - [Remote Tracking Support (Dual Machine Support)](remote-tracking-support-dual-machine-support)
+   - [Remote Tracking Support (Dual Machine Support)](#remote-tracking-support-dual-machine-support)
    - [Known Limitations](#known-limitations)
 - [Mouse Follow Server](#mouse-follow-server)
    - [Download](#download)
